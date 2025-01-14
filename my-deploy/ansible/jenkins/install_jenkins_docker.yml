@@ -1,0 +1,99 @@
+---
+- name: Install Jenkins in Docker with Modules
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Install required packages
+      apt:
+        name: "{{ item }}"
+        state: latest
+        update_cache: yes
+      loop:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - software-properties-common
+
+    - name: Add Docker's official GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Set up Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: yes
+
+    - name: Install Docker Python module
+      pip:
+        name: docker
+
+    - name: Pull the latest Jenkins Docker image
+      docker_image:
+        name: jenkins/jenkins
+        tag: lts
+        source: pull
+
+    - name: Create Jenkins data directory
+      file:
+        path: /var/jenkins_home
+        state: directory
+        owner: 1000
+        group: 1000
+        mode: '0755'
+
+    - name: Run Jenkins container
+      docker_container:
+        name: jenkins
+        image: jenkins/jenkins:lts
+        state: started
+        restart_policy: always
+        ports:
+          - "8080:8080"
+          - "50000:50000"
+        volumes:
+          - /var/jenkins_home:/var/jenkins_home
+
+    - name: Wait for Jenkins to initialize
+      wait_for:
+        path: /var/jenkins_home/secrets/initialAdminPassword
+        timeout: 120
+
+    - name: Display initial admin password
+      command: cat /var/jenkins_home/secrets/initialAdminPassword
+      register: jenkins_password
+      changed_when: false
+
+    - name: Show Jenkins initial admin password
+      debug:
+        msg: "Initial Admin Password: {{ jenkins_password.stdout }}"
+
+    - name: Install Jenkins CLI
+      get_url:
+        url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
+        dest: /usr/local/bin/jenkins-cli.jar
+
+    - name: Install Jenkins Plugins
+      shell: |
+        java -jar /usr/local/bin/jenkins-cli.jar -s http://localhost:8080/ install-plugin {{ item }}
+      with_items:
+        - git
+        - workflow-aggregator
+        - pipeline-stage-view
+        - credentials-binding
+        - docker-workflow
+      args:
+        creates: /var/jenkins_home/plugins/{{ item }}
+      environment:
+        JAVA_HOME: "/usr/lib/jvm/java-11-openjdk-amd64"
+
+    - name: Restart Jenkins after installing plugins
+      shell: |
+        java -jar /usr/local/bin/jenkins-cli.jar -s http://localhost:8080/ safe-restart
