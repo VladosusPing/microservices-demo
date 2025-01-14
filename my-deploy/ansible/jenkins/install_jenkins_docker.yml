@@ -4,6 +4,19 @@
   become: yes
 
   tasks:
+    - name: Check current Java version
+      command: java --version
+      register: java_version_output
+      ignore_errors: yes
+
+    - name: Parse Java version
+      set_fact:
+        java_version: "{{ java_version_output.stdout | regex_search('([0-9]+)') }}"
+
+    - name: Debug the Java version (for logging purposes)
+      debug:
+        msg: "Detected Java version: {{ java_version }}"
+
     - name: Install required packages
       apt:
         name: "{{ item }}"
@@ -14,6 +27,9 @@
         - ca-certificates
         - curl
         - software-properties-common
+        - pip
+        - python3-docker
+        - openjdk-{{ java_version }}-jre
 
     - name: Add Docker's official GPG key
       apt_key:
@@ -30,10 +46,6 @@
         name: docker-ce
         state: latest
         update_cache: yes
-
-    - name: Install Docker Python module
-      pip:
-        name: docker
 
     - name: Pull the latest Jenkins Docker image
       docker_image:
@@ -75,6 +87,18 @@
       debug:
         msg: "Initial Admin Password: {{ jenkins_password.stdout }}"
 
+    - name: Wait until HTTP status is 200
+      uri:
+        url: 'http://localhost:8080/login'
+        return_content: yes
+        validate_certs: no
+        status_code:
+          - 200
+      until: uri_output.status == 200
+      retries: 24 # Retries for 24 * 5 seconds = 120 seconds = 2 minutes
+      delay: 5 # Every 5 seconds
+      register: uri_output
+
     - name: Install Jenkins CLI
       get_url:
         url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
@@ -82,18 +106,21 @@
 
     - name: Install Jenkins Plugins
       shell: |
-        java -jar /usr/local/bin/jenkins-cli.jar -s http://localhost:8080/ install-plugin {{ item }}
+        java -jar /usr/local/bin/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_password.stdout }} install-plugin {{ item }}
       with_items:
         - git
         - workflow-aggregator
         - pipeline-stage-view
         - credentials-binding
         - docker-workflow
+        - ansible
       args:
         creates: /var/jenkins_home/plugins/{{ item }}
       environment:
         JAVA_HOME: "/usr/lib/jvm/java-11-openjdk-amd64"
+      register: jenkins_restart_required
 
-    - name: Restart Jenkins after installing plugins
+    - name: Restart Jenkins
       shell: |
-        java -jar /usr/local/bin/jenkins-cli.jar -s http://localhost:8080/ safe-restart
+        java -jar /usr/local/bin/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_password.stdout }} safe-restart
+      when: jenkins_restart_required is changed
