@@ -52,6 +52,11 @@
         name: jenkins/jenkins
         tag: lts
         source: pull
+    
+    - name: Pull the latest socat Docker image for Jenkins runners configuration
+      docker_image:
+        name: alpine/socat
+        source: pull
 
     - name: Create Jenkins data directory
       file:
@@ -72,6 +77,18 @@
           - "50000:50000"
         volumes:
           - /var/jenkins_home:/var/jenkins_home
+
+    - name: Run socat container
+      docker_container:
+        name: socat
+        image: alpine/socat
+        state: started
+        restart_policy: always
+        ports:
+          - "2376:2375"
+        volumes: 
+          - /var/run/docker.sock:/var/run/docker.sock
+        command: "tcp-listen:2375,fork,reuseaddr unix-connect:/var/run/docker.sock"
 
     - name: Wait for Jenkins to initialize
       wait_for:
@@ -107,20 +124,14 @@
     - name: Install Jenkins Plugins
       shell: |
         java -jar /usr/local/bin/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_password.stdout }} install-plugin {{ item }}
-      with_items:
-        - git
-        - workflow-aggregator
-        - pipeline-stage-view
-        - credentials-binding
-        - docker-workflow
-        - ansible
+      with_items: "{{ lookup('file', 'jenkins_plugins.yml') | from_yaml }}"
       args:
         creates: /var/jenkins_home/plugins/{{ item }}
       environment:
         JAVA_HOME: "/usr/lib/jvm/java-11-openjdk-amd64"
-      register: jenkins_restart_required
+      register: jenkins_plugin_installed
 
     - name: Restart Jenkins
       shell: |
         java -jar /usr/local/bin/jenkins-cli.jar -s http://localhost:8080/ -auth admin:{{ jenkins_password.stdout }} safe-restart
-      when: jenkins_restart_required is changed
+      when: jenkins_plugin_installed is changed

@@ -1,0 +1,8 @@
+- git
+- workflow-aggregator
+- pipeline-stage-view
+- credentials-binding
+- docker-workflow
+- ansible
+- docker-plugin
+- blueocean
