@@ -25,7 +25,7 @@ jobs:
       - name: Convert ENV var to JSON
         id: set-matrix
         run: |
-          echo "::set-output name=matrix::$(echo "${SERVICES_LIST}" | jq -R 'split(",")')"
+          echo "::save-state name=matrix::$(echo "[" && echo "${SERVICES_LIST}" | jq -R 'split(",")')"
 
 
   build:
