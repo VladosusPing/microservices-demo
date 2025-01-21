@@ -7,9 +7,9 @@ on:
     branches: [ "main" ]
 
 permissions:
-  id-token: write # This is required for aws oidc connection
-  contents: read # This is required for actions/checkout
-  pull-requests: write # This is required for gh bot to comment PR
+  id-token: write # Required for AWS OIDC connection
+  contents: read  # Required for actions/checkout
+  pull-requests: write # Required for GitHub bot to comment PR
 
 env:
   SRC_CODE_DIR: ${{ vars.SRC_CODE_DIR }}
@@ -26,12 +26,11 @@ jobs:
         id: set-matrix
         run: |
           if [[ -z "${SERVICES_LIST}" ]]; then
-            echo "[]" > services.json
+            echo "::set-output name=matrix::[]" # Handle empty SERVICES_LIST
           else
-            echo "${SERVICES_LIST}" | jq -R 'split(",")' > services.json
+            JSON_ARRAY=$(echo "${SERVICES_LIST}" | jq -R 'split(",")')
+            echo "::set-output name=matrix::${JSON_ARRAY}" # Output JSON array
           fi
-          echo "::set-output name=matrix::$(cat services.json)"
-
 
   build:
     needs: prepare-list-of-services
