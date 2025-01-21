@@ -17,29 +17,12 @@ env:
 
 jobs:
 
-  prepare-list-of-services:
-    runs-on: ubuntu-latest
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
-    steps:
-      - name: Convert ENV var to JSON
-        id: set-matrix
-        run: |
-          if [[ -z "${SERVICES_LIST}" ]]; then
-            echo "[]" > services.json
-          else
-            echo "${SERVICES_LIST}" | jq -R 'split(",")' > services.json
-          fi
-          MATRIX=$(cat services.json)
-          echo "Matrix: $MATRIX" # Debugging
-          echo "matrix=$MATRIX" >> $GITHUB_ENV
-
   build:
-    needs: prepare-list-of-services
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        item: ${{ fromJson(needs.prepare-list-of-services.outputs.matrix) }}
     steps:
       - name: Process item
-        run: echo "Processing ${{ matrix.item }}"
+        run: |
+          IFS=',' read -r -a items <<< "$SERVICES_LIST"
+          for item in "${items[@]}"; do
+            echo "$item"
+          done
