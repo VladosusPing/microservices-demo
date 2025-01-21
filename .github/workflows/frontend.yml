@@ -3,8 +3,14 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
   pull_request:
     branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend.yml'
 
 permissions:
   id-token: write # Required for AWS OIDC connection
@@ -13,7 +19,7 @@ permissions:
 
 env:
   SRC_CODE_DIR: ${{ vars.SRC_CODE_DIR }}
-  SERVICES_LIST: ${{ vars.SERVICES_LIST }}
+  SERVICES_NAME: "frontend"
 
 jobs:
 
@@ -26,11 +32,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Process item
-        run: |
-          ls -lha
-          IFS=',' read -r -a items <<< "$SERVICES_LIST"
-          for item in "${items[@]}"; do
-            echo "$item"
-          done
+
+      - name: Build  ${{ env.SERVICES_NAME }}
+        uses: ./.github/workflows/build-service.yml
+        with:
+          service-name: ${{ env.SERVICES_NAME }}
+          working-dir: ${{ env.SRC_CODE_DIR }}
