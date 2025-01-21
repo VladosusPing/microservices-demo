@@ -18,6 +18,8 @@ jobs:
           shell: bash
           working-directory: ${{ inputs.working-dir }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Build Docker Image
         run: |
