@@ -26,11 +26,13 @@ jobs:
         id: set-matrix
         run: |
           if [[ -z "${SERVICES_LIST}" ]]; then
-            echo "::set-output name=matrix::[]" # Handle empty SERVICES_LIST
+            echo "[]" > services.json # Handle empty SERVICES_LIST
           else
-            JSON_ARRAY=$(echo "${SERVICES_LIST}" | jq -R 'split(",")')
-            echo "::set-output name=matrix::${JSON_ARRAY}" # Output JSON array
+            echo "${SERVICES_LIST}" | jq -R 'split(",")' > services.json
           fi
+          MATRIX=$(cat services.json)
+          echo "Matrix: $MATRIX" # Debug output
+          echo "::set-output name=matrix::$MATRIX"
 
   build:
     needs: prepare-list-of-services
