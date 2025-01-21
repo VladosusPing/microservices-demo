@@ -6,13 +6,34 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  id-token: write # This is required for aws oidc connection
+  contents: read # This is required for actions/checkout
+  pull-requests: write # This is required for gh bot to comment PR
+
+env:
+  SRC_CODE_DIR: ${{ vars.SRC_CODE_DIR }}
+  SERVICES_LIST: ${{ vars.SERVICES_LIST }}
+
 jobs:
 
-  build:
-
+  prepare-list-of-services:
     runs-on: ubuntu-latest
-
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      - name: Convert ENV var to JSON
+        id: set-matrix
+        run: |
+          echo "::set-output name=matrix::$(echo "${ITEM_LIST}" | jq -R 'split(",")')"
+
+
+  build:
+    needs: prepare-list-of-services
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        item: ${{ fromJson(needs.prepare-list-of-services.outputs.matrix) }}
+    steps:
+      - name: Process item
+        run: echo "Processing ${{ matrix.item }}"
