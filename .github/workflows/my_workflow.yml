@@ -19,9 +19,14 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.SRC_CODE_DIR }}
     steps:
       - name: Process item
         run: |
+          ls -lha
           IFS=',' read -r -a items <<< "$SERVICES_LIST"
           for item in "${items[@]}"; do
             echo "$item"
