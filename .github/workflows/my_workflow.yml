@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        item: ${{ fromJson(env.matrix) }}
+        item: ${{ fromJson(needs.prepare-list-of-services.outputs.matrix) }}
     steps:
       - name: Process item
         run: echo "Processing ${{ matrix.item }}"
