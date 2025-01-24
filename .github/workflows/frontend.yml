@@ -30,6 +30,8 @@ jobs:
         shell: bash
         working-directory: ${{ env.SRC_CODE_DIR }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4      
 
       - name: Build  ${{ env.SERVICES_NAME }}
         uses: ./.github/actions/build-service
