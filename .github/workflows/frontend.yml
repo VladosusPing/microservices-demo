@@ -25,8 +25,8 @@ jobs:
   build-service:
     uses: ./.github/workflows/build-service.yml
     with:
-      service-name: ${{ env.SERVICES_NAME }}
-      working-dir: ${{ env.SRC_CODE_DIR }}
+      service-name: "frontend"
+      working-dir: "src/"
 
 
 #  build:
