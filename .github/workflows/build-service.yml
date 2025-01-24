@@ -38,7 +38,8 @@ jobs:
 
       - name: Build Docker Image
         run: |
+          cd ${{ inputs.working-dir }}/${{ inputs.service-name }}
           docker build \
           -t ${{ inputs.service-name }}:latest \ 
           -f Dockerfile \
-          ${{ inputs.working-dir }}/${{ inputs.service-name }}
+          .
