@@ -30,12 +30,12 @@ jobs:
         
       - name: Debug
         run: |
-          echo ${{ secrets.DOCKER_HUB_USER_NAME }}
+          echo ${{ vars.DOCKER_HUB_USER_NAME }}
 
       - name: Log in to Docker Hub
         uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
         with:
-          username: ${{ secrets.DOCKER_HUB_USER_NAME }}
+          username: ${{ vars.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
 
       - name: Build Docker Image
