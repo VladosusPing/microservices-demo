@@ -11,16 +11,17 @@ on:
         type: string
 
 env:
-  DOCKER_HUB_ACCESS_KEY = ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
-  DOCKER_HUB_USER_NAME = ${{ secrets.DOCKER_HUB_USER_NAME }}
+  DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+  DOCKER_HUB_USER_NAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     defaults:
-        run:
-          shell: bash
-          working-directory: ${{ inputs.working-dir }}
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working-dir }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
