@@ -9,6 +9,9 @@ on:
       working-dir:
         required: true
         type: string
+      registry: 
+        required: true
+        type: string
     secrets:
       DOCKER_HUB_ACCESS_KEY:
         required: true
@@ -36,8 +39,23 @@ jobs:
           username: ${{ vars.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
 
-      - name: Build Docker Image
-        run: |
-          docker build \
-          -t ${{ inputs.service-name }}:latest \
-          ${{ inputs.service-name }}
+#      - name: Build Docker Image
+#        run: |
+#          docker build \
+#          -t ${{ inputs.service-name }}:latest \
+#          ${{ inputs.service-name }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ inputs.registry }}/${{ inputs.service-name }}
+
+      - name: Build and push Docker image
+        id: push
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.service-name }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

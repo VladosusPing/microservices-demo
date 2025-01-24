@@ -22,15 +22,16 @@ env:
   SERVICES_NAME: "frontend"
 
 jobs:
-  build-service:
+  build-and-push:
     uses: ./.github/workflows/build-service.yml
     with:
       service-name: "frontend"
-      working-dir: "src"
+      working-dir: ${{ vars.SRC_CODE_DIR }}
+      registry: ${{ vars.REGISTRY }}
     secrets:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
-      
-      
+   
+
 #  build:
 #    runs-on: ubuntu-latest
 #    defaults:
