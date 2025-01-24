@@ -23,7 +23,7 @@ jobs:
     defaults:
       run:
         shell: bash
-        working-directory: ${{ inputs.working-dir }}
+        working-directory: ${{ inputs.working-dir }}/${{ inputs.service-name }}
 
     steps:
       - name: Checkout repository
@@ -55,7 +55,14 @@ jobs:
         id: push
         uses: docker/build-push-action@v5
         with:
-          context: ${{ inputs.service-name }}
+          context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Generate artifact attestation
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-name: ${{ inputs.registry }}/${{ inputs.service-name }}
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true
