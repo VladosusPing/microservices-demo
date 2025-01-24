@@ -10,11 +10,6 @@ on:
         required: true
         type: string
 
-permissions:
-  packages: write
-  contents: read
-  attestations: write
-  id-token: write
 
 jobs:
   build-and-push:
