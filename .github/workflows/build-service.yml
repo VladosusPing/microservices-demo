@@ -40,4 +40,5 @@ jobs:
         run: |
           docker build \
           -t ${{ inputs.service-name }}:latest \ 
+          -f Dockerfile \
           ${{ inputs.working-dir }}/${{ inputs.service-name }}
