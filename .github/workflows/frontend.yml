@@ -20,6 +20,7 @@ permissions:
 env:
   SRC_CODE_DIR: ${{ vars.SRC_CODE_DIR }}
   SERVICES_NAME: "frontend"
+  DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
 
 jobs:
   build-service:
@@ -27,6 +28,7 @@ jobs:
     with:
       service-name: "frontend"
       working-dir: "src"
+      DOCKER_HUB_ACCESS_KEY: ${{ env.DOCKER_HUB_ACCESS_KEY }}
 # test1
 #  build:
 #    runs-on: ubuntu-latest
