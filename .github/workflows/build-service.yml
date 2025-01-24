@@ -46,7 +46,7 @@ jobs:
       - name: Build Docker Image
         run: |
           docker build \
-          -t ${{ inputs.service-name }}:latest \
+          -t ${{ inputs.registry }}/${{ inputs.service-name }}:latest \
           .
 
       - name: Push Docker image
