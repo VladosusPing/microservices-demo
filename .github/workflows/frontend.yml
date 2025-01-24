@@ -23,7 +23,7 @@ env:
 
 jobs:
   build-service:
-    uses: VladosusPing/microservices-demo/.github/actions/build-service.yml@main
+    uses: ./.github/workflows/build-service.yml@main
     with:
       service-name: ${{ env.SERVICES_NAME }}
       working-dir: ${{ env.SRC_CODE_DIR }}
