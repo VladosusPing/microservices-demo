@@ -26,7 +26,7 @@ jobs:
     uses: ./.github/workflows/build-service.yml
     with:
       service-name: "frontend"
-      working-dir: "src/"
+      working-dir: "src"
 
 
 #  build:
