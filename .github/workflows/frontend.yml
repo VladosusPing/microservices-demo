@@ -4,7 +4,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'frontend/**'
+      - 'src/frontend/**'
       - '.github/workflows/frontend.yml'
   pull_request:
     branches: [ "main" ]
