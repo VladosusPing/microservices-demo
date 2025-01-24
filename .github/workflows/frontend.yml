@@ -32,7 +32,7 @@ jobs:
     steps:
 
       - name: Build  ${{ env.SERVICES_NAME }}
-        uses: ./.github/workflows/build-service.yml
+        uses: VladosusPing/microservices-demo/.github/workflows/build-service.yml@main
         with:
           service-name: ${{ env.SERVICES_NAME }}
           working-dir: ${{ env.SRC_CODE_DIR }}
