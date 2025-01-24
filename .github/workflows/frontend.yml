@@ -22,20 +22,26 @@ env:
   SERVICES_NAME: "frontend"
 
 jobs:
+  build-service:
+    uses: ./.github/actions/build-service.yml
+    with:
+      service-name: ${{ env.SERVICES_NAME }}
+      working-dir: ${{ env.SRC_CODE_DIR }}
 
-  build:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-        working-directory: ${{ env.SRC_CODE_DIR }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4      
 
-      - name: Build  ${{ env.SERVICES_NAME }}
-        uses: ./.github/actions/build-service.yml
-        with:
-          service-name: ${{ env.SERVICES_NAME }}
-          working-dir: ${{ env.SRC_CODE_DIR }}
+#  build:
+#    runs-on: ubuntu-latest
+#    defaults:
+#      run:
+#        shell: bash
+#        working-directory: ${{ env.SRC_CODE_DIR }}
+#    steps:
+#      - name: Checkout repository
+#        uses: actions/checkout@v4      
+#
+#      - name: Build  ${{ env.SERVICES_NAME }}
+#        uses: ./.github/actions/build-service.yml
+#        with:
+#          service-name: ${{ env.SERVICES_NAME }}
+#          working-dir: ${{ env.SRC_CODE_DIR }}
 # test
