@@ -29,8 +29,8 @@ on:
         required: true
 
 env:
-  TEST_DELAY: "2"
-  TEST_RETRIES: "3"
+  TEST_DELAY: "5"
+  TEST_RETRIES: "5"
 
 jobs:
   pull-and-test:

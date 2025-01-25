@@ -49,7 +49,6 @@ jobs:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
    
       
-# test
 #  build:
 #    runs-on: ubuntu-latest
 #    defaults:
