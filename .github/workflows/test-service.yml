@@ -80,7 +80,9 @@ jobs:
           DELAY=${{ env.TEST_DELAY }}
           
           for ((i=1; i<=RETRIES; i++)); do
+            set +e
             STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" $URL)
+            set -e
             echo "Attempt $i: HTTP status $STATUS"
             
             if [ "$STATUS" -eq 200 ]; then
