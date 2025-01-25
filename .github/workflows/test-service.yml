@@ -1,0 +1,94 @@
+name: Build Service
+
+on:
+  workflow_call:
+    inputs:
+      service-name:
+        required: true
+        type: string
+      registry: 
+        required: true
+        type: string
+      commit_hash:
+        required: true
+        type: string
+      test_port:
+        required: true
+        type: string
+      container_port:
+        required: true
+        type: string
+      healthcheck_path:
+        required: true
+        type: string
+    secrets:
+      DOCKER_HUB_ACCESS_KEY:
+        required: true
+
+env:
+  TEST_DELAY: "5"
+  TEST_RETRIES: "5"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1 # docker/login-action@v2
+        with:
+          username: ${{ vars.DOCKER_HUB_USER_NAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+
+      - name: Pull ${{ inputs.service-name }} Docker image from Docker Hub
+        run: |
+          docker pull ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }}
+        
+      - name: Run ${{ inputs.service-name }} container
+        run: |
+          docker run --name frontend \
+          -p ${{ inputs.test_port }}:${{ inputs.container_port }} \
+          --user 1000:1000 \
+          --cap-drop=ALL \
+          --memory="128m" \
+          --cpus="0.2" \
+          -e PORT=${{ inputs.container_port }} \
+          -e PRODUCT_CATALOG_SERVICE_ADDR=localhost:3550   \
+          -e CURRENCY_SERVICE_ADDR=localhost:7000   \
+          -e CART_SERVICE_ADDR=localhost:7070   \
+          -e RECOMMENDATION_SERVICE_ADDR=localhost:8080   \
+          -e SHIPPING_SERVICE_ADDR=localhost:50051   \
+          -e CHECKOUT_SERVICE_ADDR=localhost:5050   \
+          -e AD_SERVICE_ADDR=localhost:9555   \
+          -e SHOPPING_ASSISTANT_SERVICE_ADDR=localhost:80 \
+          -e ENABLE_PROFILER=0 \
+          -d  \
+          pipin61/frontend
+
+      - name: Wait until HTTP status is 200
+        id: test
+        run: |
+          URL="http://localhost:${{ inputs.test_port }}/${{ inputs.healthcheck_path }}"
+          RETRIES=${{ env.TEST_RETRIES }}
+          DELAY=${{ env.TEST_DELAY }}
+          
+          for ((i=1; i<=RETRIES; i++)); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" $URL)
+            echo "Attempt $i: HTTP status $STATUS"
+            
+            if [ "$STATUS" -eq 200 ]; then
+              echo "Service is up!"
+              exit 0
+            fi
+            
+            echo "Waiting for $DELAY seconds..."
+            sleep $DELAY
+          done
+          
+          echo "Service did not respond with HTTP 200 after $((RETRIES * DELAY)) seconds."
+          exit 1
+        
+          

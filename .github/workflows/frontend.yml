@@ -19,7 +19,9 @@ permissions:
 
 env:
   SRC_CODE_DIR: ${{ vars.SRC_CODE_DIR }}
-  SERVICES_NAME: "frontend"
+  SERVICE_NAME: "frontend"
+  SERVICE_PORT: "80"
+  SERVICE_CONTAINER_PORT: "8080"
 
 jobs:
   build-and-push:
@@ -28,10 +30,24 @@ jobs:
       service-name: "frontend"
       working-dir: ${{ vars.SRC_CODE_DIR }}
       registry: ${{ vars.REGISTRY }}
+      commit_hash: ${{ github.sha }}
     secrets:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
    
-     
+  test:
+    uses: ./.github/workflows/test-service.yml
+    with:
+      service-name: "frontend"
+      registry: ${{ vars.REGISTRY }}
+      commit_hash: ${{ github.sha }}
+      test_port: "80"
+      container_port: "8080"
+      healthcheck_path: "_healthz"
+    secrets:
+      DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+   
+      
+
 #  build:
 #    runs-on: ubuntu-latest
 #    defaults:

@@ -12,6 +12,9 @@ on:
       registry: 
         required: true
         type: string
+      commit_hash:
+        required: true
+        type: string
     secrets:
       DOCKER_HUB_ACCESS_KEY:
         required: true
@@ -28,11 +31,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        
-      - name: Debug
-        run: |
-          echo ${{ vars.DOCKER_HUB_USER_NAME }}
-          ls -lha
 
       - name: Log in to Docker Hub
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1 # docker/login-action@v2
@@ -43,13 +41,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Build Docker Image
+      - name: Build ${{ inputs.service-name }} Docker Image
         run: |
           docker build \
-          -t ${{ inputs.registry }}/${{ inputs.service-name }}:latest \
+          -t ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }} \
           .
 
-      - name: Push Docker image
+      - name: Push ${{ inputs.service-name }} Docker image
         run: |
-          docker push ${{ inputs.registry }}/${{ inputs.service-name }}:latest
+          docker push ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }}
 
