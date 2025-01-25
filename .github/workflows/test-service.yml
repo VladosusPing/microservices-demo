@@ -21,7 +21,7 @@ on:
       healthcheck_path:
         required: false
         type: string
-      healthcheck_type:
+#      healthcheck_type:
 #        required: true
 #        type: choice
 #        options:
