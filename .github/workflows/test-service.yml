@@ -19,8 +19,14 @@ on:
         required: true
         type: string
       healthcheck_path:
-        required: true
+        required: false
         type: string
+      healthcheck_type:
+#        required: true
+#        type: choice
+#        options:
+#          - "http"
+#          - "grpc"
       change_tag:
         required: true
         type: boolean
@@ -55,6 +61,7 @@ jobs:
         run: |
           docker run --name frontend \
           -p ${{ inputs.test_port }}:${{ inputs.container_port }} \
+          --name ${{ inputs.service-name }} \
           --user 1000:1000 \
           --cap-drop=ALL \
           --memory="128m" \
@@ -74,6 +81,7 @@ jobs:
 
       - name: Wait until HTTP status is 200
         id: test
+#        if: ${{ inputs.healthcheck_type }} == "http"
         run: |
           URL="http://localhost:${{ inputs.test_port }}/${{ inputs.healthcheck_path }}"
           RETRIES=${{ env.TEST_RETRIES }}
