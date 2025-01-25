@@ -4,13 +4,13 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - 'src/frontend/**'
-      - '.github/workflows/frontend.yml'
+      - 'src/cartservice/src/**'
+      - '.github/workflows/cartservice.yml'
   pull_request:
     branches: [ "main" ]
     paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend.yml'
+      - 'src/cartservice/src/**'
+      - '.github/workflows/cartservice.yml'
 
 permissions:
   id-token: write # Required for AWS OIDC connection
@@ -19,16 +19,16 @@ permissions:
 
 env:
   SRC_CODE_DIR: ${{ vars.SRC_CODE_DIR }}
-  SERVICE_NAME: "frontend"
-  SERVICE_PORT: "80"
-  SERVICE_CONTAINER_PORT: "8080"
+  SERVICE_NAME: "cartservice"
+  SERVICE_PORT: "7070"
+  SERVICE_CONTAINER_PORT: "7070"
 
 jobs:
   build-and-push:
     uses: ./.github/workflows/build-service.yml
     with:
-      service-name: "frontend"
-      working-dir: ${{ vars.SRC_CODE_DIR }}/frontend
+      service-name: "cartservice"
+      working-dir: ${{ vars.SRC_CODE_DIR }}/cartservice/src
       registry: ${{ vars.REGISTRY }}
       commit_hash: ${{ github.sha }}
     secrets:
@@ -38,19 +38,13 @@ jobs:
     needs: build-and-push
     uses: ./.github/workflows/test-service.yml
     with:
-      service-name: "frontend"
+      service-name: "cartservice"
       registry: ${{ vars.REGISTRY }}
       commit_hash: ${{ github.sha }}
-      test_port: "80"
-      container_port: "8080"
+      test_port: "7070"
+      container_port: "7070"
       healthcheck_path: "_healthz"
       change_tag: true
     secrets:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
    
-#  build:
-#    runs-on: ubuntu-latest
-#    defaults:
-#      run:
-#        shell: bash
-#        working-directory: ${{ env.SRC_CODE_DIR }}
