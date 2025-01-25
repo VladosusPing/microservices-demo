@@ -35,6 +35,7 @@ jobs:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
    
   test:
+    needs: build-and-push
     uses: ./.github/workflows/test-service.yml
     with:
       service-name: "frontend"
