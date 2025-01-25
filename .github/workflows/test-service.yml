@@ -21,6 +21,9 @@ on:
       healthcheck_path:
         required: true
         type: string
+      change_tag:
+        required: true
+        type: boolean
     secrets:
       DOCKER_HUB_ACCESS_KEY:
         required: true
@@ -30,13 +33,14 @@ env:
   TEST_RETRIES: "3"
 
 jobs:
-  build-and-push:
+  pull-and-test:
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
 
     steps:
+      # Comment Log in to Docker Hub step if repo is public
       - name: Log in to Docker Hub
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1 # docker/login-action@v2
         with:
@@ -91,4 +95,33 @@ jobs:
           echo "Service did not respond with HTTP 200 after $((RETRIES * DELAY)) seconds."
           exit 1
         
+  change-tag-to-latest:
+    
+    needs: pull-and-test
+    runs-on: ubuntu-latest
+    
+    if: ${{ inputs.change_tag }}
+
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1 # docker/login-action@v2
+        with:
+          username: ${{ vars.DOCKER_HUB_USER_NAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+
+      - name: Pull the image with commit hash
+        run: |
+          docker pull ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }}
+  
+      - name: Tag the image as latest
+        run: |
+          docker tag ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }} \
+          ${{ inputs.registry }}/${{ inputs.service-name }}:latest
+  
+      - name: Push the latest tag to Docker Hub
+        run: |
+          docker push ${{ inputs.registry }}/${{ inputs.service-name }}:latest
           

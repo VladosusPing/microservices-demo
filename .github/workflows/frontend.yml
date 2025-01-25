@@ -44,6 +44,7 @@ jobs:
       test_port: "80"
       container_port: "8080"
       healthcheck_path: "_healthz"
+      change_tag: true
     secrets:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
    
