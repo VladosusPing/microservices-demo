@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-and-push:
-    uses: ./.github/workflows/reusable-pipelines/build-service.yml
+    uses: ./.github/reusable-pipelines/build-service.yml
     with:
       service-name: "frontend"
       working-dir: ${{ vars.SRC_CODE_DIR }}/frontend
@@ -36,7 +36,7 @@ jobs:
    
   test:
     needs: build-and-push
-    uses: ./.github/workflows/reusable-pipelines/test-service.yml
+    uses: ./.github/reusable-pipelines/test-service.yml
     with:
       service-name: "frontend"
       registry: ${{ vars.REGISTRY }}
@@ -53,7 +53,7 @@ jobs:
   
   deploy:
     needs: [ build-and-push, test ]
-    uses: ./.github/workflows/reusable-pipelines/deploy-service.yml
+    uses: ./.github/reusable-pipelines/deploy-service.yml
     with:
       service-name: "frontend"
       registry: ${{ vars.REGISTRY }}
