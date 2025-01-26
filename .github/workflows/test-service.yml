@@ -102,7 +102,6 @@ jobs:
         id: http-test
         if: ${{ inputs.http_healthcheck }}
         run: |
-          echo: "Starting HTTP test"
           URL="http://localhost:${{ inputs.test_port }}/${{ inputs.healthcheck_path }}"
           RETRIES=${{ env.TEST_RETRIES }}
           DELAY=${{ env.TEST_DELAY }}
@@ -125,15 +124,10 @@ jobs:
           echo "Service did not respond with HTTP 200 after $((RETRIES * DELAY)) seconds."
           exit 1
 
-      - name: Debug
-        run: |
-          ls -lha
-
       - name: Grpc test
         id: grpc-test
         if: ${{ inputs.grpc_healthcheck }}
         run: |
-          echo "Starting gRPC test"
           RETRIES=${{ env.TEST_RETRIES }}
           DELAY=${{ env.TEST_DELAY }}
           for ((i=1; i<=RETRIES; i++)); do

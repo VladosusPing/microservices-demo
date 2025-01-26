@@ -43,9 +43,11 @@ jobs:
       commit_hash: ${{ github.sha }}
       test_port: "80"
       container_port: "8080"
-      healthcheck_path: "_healthz"
       change_tag: true
+
+      # HTTP checks
       http_healthcheck: true
+      healthcheck_path: "_healthz"
     secrets:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
    
