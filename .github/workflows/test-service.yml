@@ -125,6 +125,10 @@ jobs:
           echo "Service did not respond with HTTP 200 after $((RETRIES * DELAY)) seconds."
           exit 1
 
+      - name: Debug
+        run: |
+          ls -lha
+
       - name: Grpc test
         id: grpc-test
         if: ${{ inputs.grpc_healthcheck }}
@@ -134,7 +138,7 @@ jobs:
           DELAY=${{ env.TEST_DELAY }}
           for ((i=1; i<=RETRIES; i++)); do
             set +e
-            docker run --rm -v ${{ inputs.proto_file_dir }}:/protos fullstorydev/grpcurl -plaintext -import-path /protos -proto ${{ inputs.proto_file_name }} $(docker inspect ${{ inputs.service-name }} | jq -r '.[0].NetworkSettings.IPAddress'):${{ inputs.test_port }} list
+            docker run --rm -v $(pwd)/${{ inputs.proto_file_dir }}:/protos fullstorydev/grpcurl -plaintext -import-path /protos -proto ${{ inputs.proto_file_name }} $(docker inspect ${{ inputs.service-name }} | jq -r '.[0].NetworkSettings.IPAddress'):${{ inputs.test_port }} list
             RESULT=$?
             set -e
             
