@@ -43,8 +43,12 @@ jobs:
       commit_hash: ${{ github.sha }}
       test_port: "7070"
       container_port: "7070"
-      healthcheck_path: ""
       change_tag: true
+
+      # gRPC checks
+      grpc_healthcheck: true
+      proto_file_dir: ${{ vars.SRC_CODE_DIR }}/cartservice/src/protos
+      proto_file_name: "Cart.proto"
     secrets:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
    

@@ -3,6 +3,7 @@ name: Test Service
 on:
   workflow_call:
     inputs:
+      # for all tests
       service-name:
         required: true
         type: string
@@ -18,20 +19,31 @@ on:
       container_port:
         required: true
         type: string
-      healthcheck_path:
-        required: false
-        type: string
+      change_tag:
+        required: true
+        type: boolean
+    
+      # For HTTP tests
       http_healthcheck:
         required: false
         default: false
         type: boolean
+      healthcheck_path:
+        required: false
+        type: string
+
+      # For gRPC tests
       grpc_healthcheck:
         required: false
         default: false
         type: boolean
-      change_tag:
-        required: true
-        type: boolean
+      proto_file_dir:
+        required: false
+        type: string
+      proto_file_name:
+        required: false
+        type: string
+
     secrets:
       DOCKER_HUB_ACCESS_KEY:
         required: true
@@ -54,6 +66,11 @@ jobs:
         with:
           username: ${{ vars.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+      
+      - name: Checkout repo for find proto file(gRPC test)
+        id: checkout
+        if: ${{ inputs.grpc_healthcheck }}
+        uses: actions/checkout@v4
 
       - name: Pull ${{ inputs.service-name }} Docker image from Docker Hub
         run: |
@@ -82,9 +99,10 @@ jobs:
           ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }}
 
       - name: Wait until HTTP status is 200
-        id: test
+        id: http-test
         if: ${{ inputs.http_healthcheck }}
         run: |
+          echo: "Starting HTTP test"
           URL="http://localhost:${{ inputs.test_port }}/${{ inputs.healthcheck_path }}"
           RETRIES=${{ env.TEST_RETRIES }}
           DELAY=${{ env.TEST_DELAY }}
@@ -106,7 +124,35 @@ jobs:
           
           echo "Service did not respond with HTTP 200 after $((RETRIES * DELAY)) seconds."
           exit 1
-        
+
+      - name: Grpc test
+        id: grpc-test
+        if: ${{ inputs.grpc_healthcheck }}
+        run: |
+          echo "Starting gRPC test"
+          RETRIES=${{ env.TEST_RETRIES }}
+          DELAY=${{ env.TEST_DELAY }}
+          for ((i=1; i<=RETRIES; i++)); do
+            set +e
+            docker run --rm -v ${{ inputs.proto_file_dir }}:/protos fullstorydev/grpcurl -plaintext -import-path /protos -proto ${{ inputs.proto_file_name }} $(docker inspect ${{ inputs.service-name }} | jq -r '.[0].NetworkSettings.IPAddress'):7070 list
+            RESULT=$?
+            set -e
+            echo "Attempt $i: HTTP status $STATUS"
+            
+            if [ $RESULT -eq 0 ]; then
+              echo "Service is up!"
+              exit 0
+            fi
+            
+            echo "Waiting for $DELAY seconds..."
+            sleep $DELAY
+          done
+          
+          echo "Service did not respond after $((RETRIES * DELAY)) seconds."
+          exit 1
+
+
+
   change-tag-to-latest:
     
     needs: pull-and-test
