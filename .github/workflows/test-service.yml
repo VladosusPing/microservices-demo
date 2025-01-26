@@ -21,12 +21,14 @@ on:
       healthcheck_path:
         required: false
         type: string
-      healthcheck_type:
-        required: true
-        type: choice
-        options:
-          - "http"
-          - "grpc"
+      http_healthcheck:
+        required: false
+        default: false
+        type: boolean
+      grpc_healthcheck:
+        required: false
+        default: false
+        type: boolean
       change_tag:
         required: true
         type: boolean
@@ -81,7 +83,7 @@ jobs:
 
       - name: Wait until HTTP status is 200
         id: test
-        if: ${{ inputs.healthcheck_type }} == "http"
+        if: ${{ inputs.http_healthcheck }}
         run: |
           URL="http://localhost:${{ inputs.test_port }}/${{ inputs.healthcheck_path }}"
           RETRIES=${{ env.TEST_RETRIES }}
