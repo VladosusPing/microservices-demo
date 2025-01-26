@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-and-push:
-    uses: ./.github/reusable-pipelines/build-service.yml@main
+    uses: ./.github/workflows/reusable-build-service.yml
     with:
       service-name: "cartservice"
       working-dir: ${{ vars.SRC_CODE_DIR }}/cartservice/src
@@ -36,7 +36,7 @@ jobs:
    
   test:
     needs: build-and-push
-    uses: ./.github/reusable-pipelines/test-service.yml@main
+    uses: ./.github/workflows/reusable-test-service.yml
     with:
       service-name: "cartservice"
       registry: ${{ vars.REGISTRY }}
