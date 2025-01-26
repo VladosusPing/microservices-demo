@@ -134,10 +134,9 @@ jobs:
           DELAY=${{ env.TEST_DELAY }}
           for ((i=1; i<=RETRIES; i++)); do
             set +e
-            docker run --rm -v ${{ inputs.proto_file_dir }}:/protos fullstorydev/grpcurl -plaintext -import-path /protos -proto ${{ inputs.proto_file_name }} $(docker inspect ${{ inputs.service-name }} | jq -r '.[0].NetworkSettings.IPAddress'):7070 list
+            docker run --rm -v ${{ inputs.proto_file_dir }}:/protos fullstorydev/grpcurl -plaintext -import-path /protos -proto ${{ inputs.proto_file_name }} $(docker inspect ${{ inputs.service-name }} | jq -r '.[0].NetworkSettings.IPAddress'):${{ inputs.test_port }} list
             RESULT=$?
             set -e
-            echo "Attempt $i: HTTP status $STATUS"
             
             if [ $RESULT -eq 0 ]; then
               echo "Service is up!"

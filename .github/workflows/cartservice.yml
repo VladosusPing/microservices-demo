@@ -47,7 +47,7 @@ jobs:
 
       # gRPC checks
       grpc_healthcheck: true
-      proto_file_dir: ${{ vars.SRC_CODE_DIR }}/cartservice/src/protos
+      proto_file_dir: "${{ vars.SRC_CODE_DIR }}/cartservice/src/protos"
       proto_file_name: "Cart.proto"
     secrets:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
