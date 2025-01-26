@@ -25,7 +25,7 @@ env:
 
 jobs:
   build-and-push:
-    uses: ./.github/workflows/build-service.yml
+    uses: ./.github/workflows/reusable-pipelines/build-service.yml
     with:
       service-name: "frontend"
       working-dir: ${{ vars.SRC_CODE_DIR }}/frontend
@@ -36,7 +36,7 @@ jobs:
    
   test:
     needs: build-and-push
-    uses: ./.github/workflows/test-service.yml
+    uses: ./.github/workflows/reusable-pipelines/test-service.yml
     with:
       service-name: "frontend"
       registry: ${{ vars.REGISTRY }}
@@ -50,6 +50,16 @@ jobs:
       healthcheck_path: "_healthz"
     secrets:
       DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+  
+  deploy:
+    needs: [ build-and-push, test ]
+    uses: ./.github/workflows/reusable-pipelines/deploy-service.yml
+    with:
+      service-name: "frontend"
+      registry: ${{ vars.REGISTRY }}
+    secrets:
+      DOCKER_HUB_ACCESS_KEY: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+
    
 # test
 #  build:

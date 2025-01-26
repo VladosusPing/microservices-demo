@@ -1,0 +1,36 @@
+name: Test Service
+
+on:
+  workflow_call:
+    inputs:
+      # for all tests
+      service-name:
+        required: true
+        type: string
+      registry: 
+        required: true
+        type: string
+      tag_to_deploy:
+        required: false
+        type: string
+        default: "latest"
+
+    secrets:
+      DOCKER_HUB_ACCESS_KEY:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Comment Log in to Docker Hub step if repo is public
+      - name: Log in to Docker Hub
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1 # docker/login-action@v2
+        with:
+          username: ${{ vars.DOCKER_HUB_USER_NAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+      
