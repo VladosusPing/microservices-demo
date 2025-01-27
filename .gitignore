@@ -17,7 +17,6 @@
 *.pyc
 *.swp
 *.tfstate*
-*.tfvars
 *~
 bin/
 build/
