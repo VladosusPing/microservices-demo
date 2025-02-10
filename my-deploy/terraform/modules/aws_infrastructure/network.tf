@@ -8,9 +8,10 @@ resource "aws_vpc" "main" {
 
 ### Subnets
 resource "aws_subnet" "prod-public-subnet-us-east-1a" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.public_us-east-1a_subnet_cidr
-  availability_zone = "us-east-1a"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_us-east-1a_subnet_cidr
+  availability_zone       = "us-east-1a"
+  map_public_ip_on_launch = true
 
 
   tags = {
@@ -19,9 +20,10 @@ resource "aws_subnet" "prod-public-subnet-us-east-1a" {
 }
 
 resource "aws_subnet" "prod-public-subnet-us-east-1b" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = var.public_us-east-1b_subnet_cidr
-  availability_zone = "us-east-1b"
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_us-east-1b_subnet_cidr
+  availability_zone       = "us-east-1b"
+  map_public_ip_on_launch = true
 
 
   tags = {

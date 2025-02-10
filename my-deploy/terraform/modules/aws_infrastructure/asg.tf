@@ -1,3 +1,4 @@
+/*
 resource "aws_autoscaling_group" "eks_asg" {
   vpc_zone_identifier = [
     aws_subnet.prod-public-subnet-us-east-1a.id,
@@ -19,3 +20,4 @@ resource "aws_autoscaling_group" "eks_asg" {
     propagate_at_launch = true
   }
 }
+*/

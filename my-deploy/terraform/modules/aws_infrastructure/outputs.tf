@@ -24,3 +24,14 @@ output "prod_public_us-east-1b_subnet_id" {
   value       = aws_subnet.prod-public-subnet-us-east-1b.id
 }
 
+output "eks_cluster_name" {
+  value = aws_eks_cluster.eks_cluster.name
+}
+
+output "eks_cluster_endpoint" {
+  value = aws_eks_cluster.eks_cluster.endpoint
+}
+
+#output "worker_nodes" {
+#  value = aws_autoscaling_group.eks_asg.id
+#}
