@@ -1,5 +1,10 @@
-# This is main file for terraform on prod env
 terraform {
+  backend "s3" {
+    bucket       = "components-terraform-state"
+    key          = "state/terraform.tfstate"
+    region       = "us-east-1"
+    use_lockfile = true
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -19,8 +24,8 @@ terraform {
 module "aws_infrastructure" {
   source = "../modules/aws_infrastructure"
 
-  ssh_pubkey_file            = var.ssh_pubkey_file
-  tag_env                    = var.tag_env
-  ssh_privkey_file           = var.ssh_privkey_file
+  ssh_pubkey_file  = var.ssh_pubkey_file
+  tag_env          = var.tag_env
+  ssh_privkey_file = var.ssh_privkey_file
 
 }

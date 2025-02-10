@@ -16,9 +16,14 @@ variable "tag_owner" {
 variable "tag_project" {
   description = "Project name tag"
   type        = string
-  default     = "devops-learning"
+  default     = "microserivces-demo"
 }
 
+variable "tag_managed" {
+  description = "Managed by tag"
+  type        = string
+  default     = "terraform"
+}
 
 ##################################### VPC vars #####################################
 
@@ -70,7 +75,7 @@ variable "amis" {
 }
 variable "instance_type" {
   type    = string
-  default = "t2.micro"
+  default = "t3.micro"
 }
 
 variable "ec2_instance_name" {

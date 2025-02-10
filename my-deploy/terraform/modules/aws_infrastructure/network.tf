@@ -2,10 +2,7 @@
 resource "aws_vpc" "main" {
   cidr_block = var.vpc_cidr
   tags = {
-    Name    = "prod-vpc"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
+    Name = "prod-vpc"
   }
 }
 
@@ -17,10 +14,7 @@ resource "aws_subnet" "prod-public-subnet-us-east-1a" {
 
 
   tags = {
-    Name    = "prod-public-subnet-us-east-1a"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
+    Name = "prod-public-subnet-us-east-1a"
   }
 }
 
@@ -31,10 +25,7 @@ resource "aws_subnet" "prod-public-subnet-us-east-1b" {
 
 
   tags = {
-    Name    = "prod-public-subnet-us-east-1b"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
+    Name = "prod-public-subnet-us-east-1b"
   }
 }
 
@@ -45,10 +36,7 @@ resource "aws_subnet" "prod-private-subnet-us-east-1a" {
 
 
   tags = {
-    Name    = "prod-private-subnet-us-east-1a"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
+    Name = "prod-private-subnet-us-east-1a"
   }
 }
 
@@ -59,10 +47,7 @@ resource "aws_subnet" "prod-private-subnet-us-east-1b" {
 
 
   tags = {
-    Name    = "prod-private-subnet-us-east-1b"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
+    Name = "prod-private-subnet-us-east-1b"
   }
 }
 
@@ -70,23 +55,18 @@ resource "aws_subnet" "prod-private-subnet-us-east-1b" {
 
 resource "aws_internet_gateway" "prod-igw" {
   tags = {
-    Name    = "prod-igw"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
+    Name = "prod-igw"
   }
   vpc_id = aws_vpc.main.id
 }
 
+/*
 # Elastic IPs
 
 resource "aws_eip" "bastion_eip" {
 
   tags = {
     Name    = "bastion_eip"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
   }
 }
 
@@ -94,50 +74,39 @@ resource "aws_eip" "k3s_cluster_eip" {
 
   tags = {
     Name    = "k3s_cluster_eip"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
   }
 }
 
-#resource "aws_eip" "prod-nat-gw-eip" {
-#  vpc                       = true
-#  associate_with_private_ip = "10.0.1.1"
-#  depends_on                = [aws_internet_gateway.prod-igw]
-#}
+resource "aws_eip" "prod-nat-gw-eip" {
+  vpc                       = true
+  associate_with_private_ip = "10.0.1.1"
+  depends_on                = [aws_internet_gateway.prod-igw]
+}
 
-#resource "aws_nat_gateway" "prod-nat-gw" {
-#  allocation_id = aws_eip.prod-nat-gw-eip.id
-#  subnet_id     = aws_subnet.prod-public-subnet-us-east-1a.id
+resource "aws_nat_gateway" "prod-nat-gw" {
+  allocation_id = aws_eip.prod-nat-gw-eip.id
+  subnet_id     = aws_subnet.prod-public-subnet-us-east-1a.id
 
-#  tags = {
-#    Name = "prod-nat-gw"
-#    Project = var.tag_project
-#    Owner = var.tag_owner
-#    Env = var.tag_env
-#  }
-#  depends_on = [aws_eip.prod-nat-gw-eip]
-#}
+  tags = {
+    Name = "prod-nat-gw"
+  }
+  depends_on = [aws_eip.prod-nat-gw-eip]
+}
+*/
 
 ### Route tables for the subnets
 
 resource "aws_route_table" "public-route-table" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name    = "public-route-table"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
+    Name = "public-route-table"
   }
 }
 
 resource "aws_route_table" "private-route-table" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name    = "private-route-table"
-    Project = var.tag_project
-    Owner   = var.tag_owner
-    Env     = var.tag_env
+    Name = "private-route-table"
   }
 }
 
