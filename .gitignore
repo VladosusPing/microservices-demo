@@ -60,3 +60,6 @@ terraform.tfvars.json
 
 # Ignore local execution files
 terraform.rc
+
+# My test k8s manifest files
+test_*.yaml
