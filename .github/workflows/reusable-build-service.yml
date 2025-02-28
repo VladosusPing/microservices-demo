@@ -32,6 +32,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-${{ inputs.service-name }}-${{ inputs.commit_hash }}
+          restore-keys: |
+            ${{ runner.os }}-${{ inputs.service-name }}-
+
       - name: Log in to Docker Hub
         uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1 # docker/login-action@v2
         with:
@@ -44,6 +52,8 @@ jobs:
       - name: Build ${{ inputs.service-name }} Docker Image
         run: |
           docker build \
+          --cache-from=type=registry,ref=${{ inputs.registry }}/${{ inputs.service-name }}:latest \
+          --cache-to=type=inline \
           -t ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }} \
           .
 
@@ -51,3 +61,6 @@ jobs:
         run: |
           docker push ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }}
 
+      
+      - name: Check if Docker build succeeded
+        run: docker images ${{ inputs.registry }}/${{ inputs.service-name }}:${{ inputs.commit_hash }}

@@ -1,9 +1,8 @@
-name: Test Service
+name: Deploy Service
 
 on:
   workflow_call:
     inputs:
-      # for all tests
       service-name:
         required: true
         type: string
@@ -29,8 +28,9 @@ jobs:
     steps:
       # Comment Log in to Docker Hub step if repo is public
       - name: Log in to Docker Hub
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1 # docker/login-action@v2
+        uses: docker/login-action@v2
         with:
           username: ${{ vars.DOCKER_HUB_USER_NAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_KEY }}
+      
       
